@@ -18,6 +18,13 @@ from slide_engine import (
     add_key_stat_slide,
     add_quote_slide,
     add_conclusion_slide,
+    add_process_flow_slide,
+    add_timeline_slide,
+    add_matrix_slide,
+    add_pyramid_slide,
+    add_bar_chart_slide,
+    add_pie_chart_slide,
+    add_icon_cards_slide,
 )
 
 
@@ -193,3 +200,168 @@ class TestSpeakerNotes:
             notes="Référence : Thévenet (2015), « Fonctions RH » — 4ème édition"
         )
         assert "Thévenet" in slide.notes_slide.notes_text_frame.text
+
+
+# ===================================================================
+# VISUAL LAYOUTS TESTS
+# ===================================================================
+
+
+class TestProcessFlowSlide:
+    def test_basic(self, prs):
+        slide = add_process_flow_slide(
+            prs, "Processus GPEC",
+            ["Diagnostic", "Planification", "Action", "Évaluation"],
+        )
+        assert len(prs.slides) == 1
+
+    def test_with_notes(self, prs):
+        slide = add_process_flow_slide(
+            prs, "Processus", ["A", "B", "C"],
+            notes="Décrire chaque étape",
+        )
+        assert "Décrire" in slide.notes_slide.notes_text_frame.text
+
+    def test_many_steps(self, prs):
+        slide = add_process_flow_slide(
+            prs, "Long process",
+            ["Étape 1", "Étape 2", "Étape 3", "Étape 4", "Étape 5", "Étape 6"],
+        )
+        assert len(prs.slides) == 1
+
+
+class TestTimelineSlide:
+    def test_basic(self, prs):
+        slide = add_timeline_slide(
+            prs, "Évolution GPEC",
+            [("2005", "Loi Borloo"), ("2013", "ANI"), ("2017", "Ordonnances Macron"), ("2024", "GEPP 2.0")],
+        )
+        assert len(prs.slides) == 1
+
+    def test_single_milestone(self, prs):
+        slide = add_timeline_slide(
+            prs, "Date clé",
+            [("2025", "Mise en place SIRH")],
+        )
+        assert len(prs.slides) == 1
+
+    def test_with_notes(self, prs):
+        slide = add_timeline_slide(
+            prs, "Timeline",
+            [("T1", "Action A"), ("T2", "Action B")],
+            notes="Respecter le phasage",
+        )
+        assert "phasage" in slide.notes_slide.notes_text_frame.text
+
+
+class TestMatrixSlide:
+    def test_basic_swot(self, prs):
+        slide = add_matrix_slide(
+            prs, "Analyse SWOT",
+            top_left={"title": "Forces", "items": ["Culture forte", "Budget"]},
+            top_right={"title": "Faiblesses", "items": ["Pas de SIRH"]},
+            bottom_left={"title": "Opportunités", "items": ["IA", "GEPP"]},
+            bottom_right={"title": "Menaces", "items": ["Turnover"]},
+        )
+        assert len(prs.slides) == 1
+
+    def test_with_axis_labels(self, prs):
+        slide = add_matrix_slide(
+            prs, "Matrice compétences",
+            top_left={"title": "Q1", "items": ["A"]},
+            top_right={"title": "Q2", "items": ["B"]},
+            bottom_left={"title": "Q3", "items": ["C"]},
+            bottom_right={"title": "Q4", "items": ["D"]},
+            x_label="Criticité →",
+            y_label="Maîtrise →",
+        )
+        assert len(prs.slides) == 1
+
+
+class TestPyramidSlide:
+    def test_basic(self, prs):
+        slide = add_pyramid_slide(
+            prs, "Pyramide de Maslow",
+            ["Accomplissement", "Estime", "Appartenance", "Sécurité", "Physiologie"],
+        )
+        assert len(prs.slides) == 1
+
+    def test_three_levels(self, prs):
+        slide = add_pyramid_slide(
+            prs, "Niveaux de compétences",
+            ["Expert", "Confirmé", "Junior"],
+        )
+        assert len(prs.slides) == 1
+
+
+class TestBarChartSlide:
+    def test_basic(self, prs):
+        slide = add_bar_chart_slide(
+            prs, "Taux de turnover par département",
+            categories=["RH", "IT", "Finance", "Marketing", "Production"],
+            values=[8.5, 15.2, 6.3, 12.1, 9.8],
+        )
+        assert len(prs.slides) == 1
+
+    def test_with_notes(self, prs):
+        slide = add_bar_chart_slide(
+            prs, "KPI Formation",
+            categories=["2022", "2023", "2024"],
+            values=[45, 62, 78],
+            notes="Progression constante du taux de formation",
+        )
+        assert "Progression" in slide.notes_slide.notes_text_frame.text
+
+
+class TestPieChartSlide:
+    def test_basic(self, prs):
+        slide = add_pie_chart_slide(
+            prs, "Répartition des effectifs",
+            categories=["CDI", "CDD", "Intérim", "Alternance"],
+            values=[65, 15, 12, 8],
+        )
+        assert len(prs.slides) == 1
+
+    def test_with_notes(self, prs):
+        slide = add_pie_chart_slide(
+            prs, "Budget formation",
+            categories=["Technique", "Management", "Soft skills"],
+            values=[50, 30, 20],
+            notes="Rééquilibrer vers les soft skills",
+        )
+        assert "soft skills" in slide.notes_slide.notes_text_frame.text
+
+
+class TestIconCardsSlide:
+    def test_basic_three_cards(self, prs):
+        slide = add_icon_cards_slide(
+            prs, "Dashboard RH",
+            cards=[
+                {"value": "78%", "label": "Satisfaction"},
+                {"value": "12%", "label": "Turnover"},
+                {"value": "3.2j", "label": "Absentéisme"},
+            ],
+        )
+        assert len(prs.slides) == 1
+
+    def test_six_cards(self, prs):
+        slide = add_icon_cards_slide(
+            prs, "KPIs RH",
+            cards=[
+                {"value": "156", "label": "Effectif total"},
+                {"value": "42%", "label": "Femmes managers"},
+                {"value": "2.1%", "label": "Budget formation / MS"},
+                {"value": "8.5%", "label": "Turnover"},
+                {"value": "92%", "label": "Entretiens réalisés"},
+                {"value": "4.2/5", "label": "Score engagement"},
+            ],
+        )
+        assert len(prs.slides) == 1
+
+    def test_with_notes(self, prs):
+        slide = add_icon_cards_slide(
+            prs, "Indicateurs",
+            cards=[{"value": "95%", "label": "Taux complétion"}],
+            notes="Objectif dépassé",
+        )
+        assert "dépassé" in slide.notes_slide.notes_text_frame.text

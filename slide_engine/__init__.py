@@ -10,6 +10,14 @@ from .layouts import (
     add_key_stat_slide,
     add_quote_slide,
     add_conclusion_slide,
+    # Visual layouts
+    add_process_flow_slide,
+    add_timeline_slide,
+    add_matrix_slide,
+    add_pyramid_slide,
+    add_bar_chart_slide,
+    add_pie_chart_slide,
+    add_icon_cards_slide,
 )
 
 __all__ = [
@@ -23,4 +31,12 @@ __all__ = [
     "add_key_stat_slide",
     "add_quote_slide",
     "add_conclusion_slide",
+    # Visual layouts
+    "add_process_flow_slide",
+    "add_timeline_slide",
+    "add_matrix_slide",
+    "add_pyramid_slide",
+    "add_bar_chart_slide",
+    "add_pie_chart_slide",
+    "add_icon_cards_slide",
 ]

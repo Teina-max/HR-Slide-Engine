@@ -137,3 +137,162 @@ def _add_line(slide, left, top, width, height, color, line_width=Pt(2)):
     shape.fill.fore_color.rgb = color
     shape.line.fill.background()
     return shape
+
+
+def _add_rounded_rectangle(slide, left, top, width, height, fill_color,
+                           border_color=None, text="", font_size=D.BODY_SIZE,
+                           font_color=D.WHITE, bold=False, alignment=PP_ALIGN.CENTER):
+    """Add a rounded rectangle with optional text inside."""
+    from pptx.enum.shapes import MSO_SHAPE
+    shape = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height)
+    shape.fill.solid()
+    shape.fill.fore_color.rgb = fill_color
+    if border_color:
+        shape.line.color.rgb = border_color
+        shape.line.width = Pt(1)
+    else:
+        shape.line.fill.background()
+
+    if text:
+        tf = shape.text_frame
+        tf.word_wrap = True
+        tf.paragraphs[0].text = text
+        tf.paragraphs[0].font.size = font_size
+        tf.paragraphs[0].font.color.rgb = font_color
+        tf.paragraphs[0].font.bold = bold
+        tf.paragraphs[0].font.name = D.FONT_FAMILY
+        tf.paragraphs[0].alignment = alignment
+        shape.text_frame._txBody.bodyPr.set("anchor", "ctr")
+    return shape
+
+
+def _add_chevron(slide, left, top, width, height, fill_color, text="",
+                 font_size=D.SMALL_SIZE, font_color=D.WHITE):
+    """Add a chevron (pentagon/arrow) shape with text."""
+    from pptx.enum.shapes import MSO_SHAPE
+    shape = slide.shapes.add_shape(MSO_SHAPE.CHEVRON, left, top, width, height)
+    shape.fill.solid()
+    shape.fill.fore_color.rgb = fill_color
+    shape.line.fill.background()
+
+    if text:
+        tf = shape.text_frame
+        tf.word_wrap = True
+        tf.paragraphs[0].text = text
+        tf.paragraphs[0].font.size = font_size
+        tf.paragraphs[0].font.color.rgb = font_color
+        tf.paragraphs[0].font.bold = True
+        tf.paragraphs[0].font.name = D.FONT_FAMILY
+        tf.paragraphs[0].alignment = PP_ALIGN.CENTER
+        shape.text_frame._txBody.bodyPr.set("anchor", "ctr")
+    return shape
+
+
+def _add_oval(slide, left, top, width, height, fill_color, text="",
+              font_size=D.BODY_SIZE, font_color=D.WHITE, bold=True):
+    """Add an oval/circle shape with text."""
+    from pptx.enum.shapes import MSO_SHAPE
+    shape = slide.shapes.add_shape(MSO_SHAPE.OVAL, left, top, width, height)
+    shape.fill.solid()
+    shape.fill.fore_color.rgb = fill_color
+    shape.line.fill.background()
+
+    if text:
+        tf = shape.text_frame
+        tf.word_wrap = True
+        tf.paragraphs[0].text = text
+        tf.paragraphs[0].font.size = font_size
+        tf.paragraphs[0].font.color.rgb = font_color
+        tf.paragraphs[0].font.bold = bold
+        tf.paragraphs[0].font.name = D.FONT_FAMILY
+        tf.paragraphs[0].alignment = PP_ALIGN.CENTER
+        shape.text_frame._txBody.bodyPr.set("anchor", "ctr")
+    return shape
+
+
+def _add_triangle(slide, left, top, width, height, fill_color):
+    """Add an isoceles triangle shape."""
+    from pptx.enum.shapes import MSO_SHAPE
+    shape = slide.shapes.add_shape(MSO_SHAPE.ISOSCELES_TRIANGLE, left, top, width, height)
+    shape.fill.solid()
+    shape.fill.fore_color.rgb = fill_color
+    shape.line.fill.background()
+    return shape
+
+
+def _add_chart_bar(slide, left, top, width, height, categories, values,
+                   chart_title=""):
+    """Add a bar chart to the slide."""
+    from pptx.chart.data import CategoryChartData
+    from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
+
+    chart_data = CategoryChartData()
+    chart_data.categories = categories
+    chart_data.add_series("", values)
+
+    chart_frame = slide.shapes.add_chart(
+        XL_CHART_TYPE.COLUMN_CLUSTERED, left, top, width, height, chart_data
+    )
+    chart = chart_frame.chart
+    chart.has_legend = False
+
+    # Style the bars with orange
+    plot = chart.plots[0]
+    series = plot.series[0]
+    series.format.fill.solid()
+    series.format.fill.fore_color.rgb = D.ORANGE
+
+    # Style axes
+    category_axis = chart.category_axis
+    category_axis.tick_labels.font.size = Pt(12)
+    category_axis.tick_labels.font.name = D.FONT_FAMILY
+    category_axis.tick_labels.font.color.rgb = D.GRAY
+
+    value_axis = chart.value_axis
+    value_axis.tick_labels.font.size = Pt(11)
+    value_axis.tick_labels.font.name = D.FONT_FAMILY
+    value_axis.tick_labels.font.color.rgb = D.GRAY
+    value_axis.has_major_gridlines = True
+    value_axis.major_gridlines.format.line.color.rgb = D.LIGHT_GRAY
+
+    return chart_frame
+
+
+def _add_chart_pie(slide, left, top, width, height, categories, values):
+    """Add a pie chart to the slide."""
+    from pptx.chart.data import CategoryChartData
+    from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION, XL_LABEL_POSITION
+
+    chart_data = CategoryChartData()
+    chart_data.categories = categories
+    chart_data.add_series("", values)
+
+    chart_frame = slide.shapes.add_chart(
+        XL_CHART_TYPE.PIE, left, top, width, height, chart_data
+    )
+    chart = chart_frame.chart
+
+    # Color each slice
+    plot = chart.plots[0]
+    colors = D.PROCESS_COLORS
+    for i, point in enumerate(plot.series[0].points):
+        point.format.fill.solid()
+        point.format.fill.fore_color.rgb = colors[i % len(colors)]
+
+    # Data labels with percentages
+    plot.has_data_labels = True
+    data_labels = plot.data_labels
+    data_labels.show_percentage = True
+    data_labels.show_category_name = True
+    data_labels.show_value = False
+    data_labels.font.size = Pt(11)
+    data_labels.font.name = D.FONT_FAMILY
+    data_labels.font.color.rgb = D.DARK_TEXT
+
+    chart.has_legend = True
+    chart.legend.position = XL_LEGEND_POSITION.BOTTOM
+    chart.legend.font.size = Pt(11)
+    chart.legend.font.name = D.FONT_FAMILY
+    chart.legend.include_in_layout = False
+
+    return chart_frame
