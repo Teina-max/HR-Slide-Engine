@@ -25,6 +25,9 @@ from slide_engine import (
     add_bar_chart_slide,
     add_pie_chart_slide,
     add_icon_cards_slide,
+    add_org_chart_slide,
+    add_funnel_slide,
+    add_team_grid_slide,
 )
 
 
@@ -208,6 +211,42 @@ GPEC_PLAN = {
             "notes": "KPIs issus du bilan social."
         },
         {
+            "layout": "org_chart",
+            "title": "Organigramme Direction RH",
+            "manager": {"name": "Marie Dupont", "title": "DRH"},
+            "reports": [
+                {"name": "Jean Martin", "title": "Resp. Formation"},
+                {"name": "Sophie Leclerc", "title": "Resp. Recrutement"},
+                {"name": "Pierre Durand", "title": "Resp. Paie"}
+            ],
+            "notes": "Présenter l'organisation actuelle de la DRH."
+        },
+        {
+            "layout": "funnel",
+            "title": "Tunnel de recrutement 2024",
+            "stages": [
+                {"label": "Candidatures reçues", "value": "850"},
+                {"label": "Présélectionnés", "value": "320"},
+                {"label": "Entretiens RH", "value": "145"},
+                {"label": "Entretiens manager", "value": "62"},
+                {"label": "Recrutés", "value": "28"}
+            ],
+            "notes": "Taux de conversion global : 3.3%. Identifier les goulets d'étranglement."
+        },
+        {
+            "layout": "team_grid",
+            "title": "Équipe projet GPEC",
+            "members": [
+                {"name": "Marie Dupont", "role": "Sponsor", "desc": "Direction et arbitrages"},
+                {"name": "Jean Martin", "role": "Chef de projet", "desc": "Pilotage opérationnel"},
+                {"name": "Sophie Leclerc", "role": "HRBP", "desc": "Diagnostic compétences"},
+                {"name": "Pierre Durand", "role": "SIRH", "desc": "Outils et données"},
+                {"name": "Claire Bernard", "role": "Consultante", "desc": "Méthodologie GPEC"},
+                {"name": "Luc Moreau", "role": "Partenaire social", "desc": "Dialogue social"}
+            ],
+            "notes": "Équipe pluridisciplinaire. Insister sur la gouvernance projet."
+        },
+        {
             "layout": "conclusion",
             "title": "Conclusion et perspectives",
             "points": [
@@ -245,6 +284,9 @@ LAYOUT_DISPATCH = {
     "bar_chart": lambda prs, s: add_bar_chart_slide(prs, s["title"], s["categories"], s["values"], s.get("notes", "")),
     "pie_chart": lambda prs, s: add_pie_chart_slide(prs, s["title"], s["categories"], s["values"], s.get("notes", "")),
     "icon_cards": lambda prs, s: add_icon_cards_slide(prs, s["title"], s["cards"], s.get("notes", "")),
+    "org_chart": lambda prs, s: add_org_chart_slide(prs, s["title"], s["manager"], s["reports"], s.get("notes", "")),
+    "funnel": lambda prs, s: add_funnel_slide(prs, s["title"], s["stages"], s.get("notes", "")),
+    "team_grid": lambda prs, s: add_team_grid_slide(prs, s["title"], s["members"], s.get("notes", "")),
 }
 
 
@@ -267,12 +309,13 @@ class TestIntegrationPipeline:
         assert file_size > 10000, f"File too small: {file_size} bytes"
 
     def test_all_layouts_used(self):
-        """Verify the GPEC plan uses all 15 layout types."""
+        """Verify the GPEC plan uses all 18 layout types."""
         layouts_used = {s["layout"] for s in GPEC_PLAN["slides"]}
         expected = {"title", "agenda", "section", "bullets", "two_columns",
                     "key_stat", "quote", "conclusion",
                     "process_flow", "timeline", "matrix", "pyramid",
-                    "bar_chart", "pie_chart", "icon_cards"}
+                    "bar_chart", "pie_chart", "icon_cards",
+                    "org_chart", "funnel", "team_grid"}
         assert layouts_used == expected
 
     def test_all_slides_have_notes(self):

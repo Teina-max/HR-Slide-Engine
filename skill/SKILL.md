@@ -40,10 +40,13 @@ Analyse le texte fourni par l'utilisateur et produis un plan structuré en JSON 
 | Données chiffrées comparatives | `bar_chart` |
 | Répartition, proportions | `pie_chart` |
 | Dashboard, KPIs multiples | `icon_cards` |
+| Organigramme, hiérarchie équipe | `org_chart` |
+| Tunnel, entonnoir, pipeline | `funnel` |
+| Équipe, profils, intervenants | `team_grid` |
 
 4. **Structurer la narration** selon le schéma académique RH :
    - Accroche → Agenda → Contexte → Cadre théorique → Diagnostic → Préconisations → Conclusion
-5. **Privilégier les layouts visuels** quand le contenu s'y prête : préférer un `process_flow` à des `bullets` pour des étapes, un `bar_chart` à un `key_stat` quand il y a plusieurs chiffres comparables, un `matrix` à des `two_columns` pour une analyse SWOT.
+5. **Privilégier les layouts visuels** quand le contenu s'y prête : préférer un `process_flow` à des `bullets` pour des étapes, un `bar_chart` à un `key_stat` quand il y a plusieurs chiffres comparables, un `matrix` à des `two_columns` pour une analyse SWOT, un `org_chart` pour une hiérarchie, un `funnel` pour un pipeline de recrutement, un `team_grid` pour présenter une équipe.
 
 ### Passe 2 — Générer le JSON intermédiaire
 
@@ -156,6 +159,36 @@ Produis un objet JSON avec cette structure exacte :
         {"value": "3.2j", "label": "Absentéisme"}
       ],
       "notes": "..."
+    },
+    {
+      "layout": "org_chart",
+      "title": "Organigramme Direction RH",
+      "manager": {"name": "Marie Dupont", "title": "DRH"},
+      "reports": [
+        {"name": "Jean Martin", "title": "Resp. Formation"},
+        {"name": "Sophie Leclerc", "title": "Resp. Recrutement"}
+      ],
+      "notes": "..."
+    },
+    {
+      "layout": "funnel",
+      "title": "Tunnel de recrutement",
+      "stages": [
+        {"label": "Candidatures", "value": "850"},
+        {"label": "Entretiens", "value": "145"},
+        {"label": "Recrutés", "value": "28"}
+      ],
+      "notes": "..."
+    },
+    {
+      "layout": "team_grid",
+      "title": "Équipe projet",
+      "members": [
+        {"name": "Marie Dupont", "role": "Chef de projet", "desc": "Pilotage"},
+        {"name": "Jean Martin", "role": "RRH", "desc": "Compétences"},
+        {"name": "Sophie Leclerc", "role": "Consultante"}
+      ],
+      "notes": "..."
     }
   ]
 }
@@ -184,7 +217,8 @@ from slide_engine import (
     add_key_stat_slide, add_quote_slide, add_conclusion_slide,
     add_process_flow_slide, add_timeline_slide, add_matrix_slide,
     add_pyramid_slide, add_bar_chart_slide, add_pie_chart_slide,
-    add_icon_cards_slide,
+    add_icon_cards_slide, add_org_chart_slide, add_funnel_slide,
+    add_team_grid_slide,
 )
 
 prs = create_presentation()
@@ -206,7 +240,7 @@ print(f"Présentation générée : {filename}")
 6. **1 idée = 1 slide** : ne pas surcharger
 7. Le fichier est sauvegardé dans le répertoire courant
 8. Toujours écrire le script dans un fichier temporaire, l'exécuter avec `python`, puis le supprimer
-9. **Utiliser au moins 3 layouts visuels** (process_flow, timeline, matrix, pyramid, bar_chart, pie_chart, icon_cards) par présentation
+9. **Utiliser au moins 3 layouts visuels** (process_flow, timeline, matrix, pyramid, bar_chart, pie_chart, icon_cards, org_chart, funnel, team_grid) par présentation
 10. **Privilégier les visuels aux textes** : si un contenu peut être représenté graphiquement, utiliser un layout visuel
 
 ## Workflow d'exécution

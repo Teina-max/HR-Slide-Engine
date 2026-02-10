@@ -1,4 +1,4 @@
-"""Layout functions for HR Slide Engine — 15 professional slide types."""
+"""Layout functions for HR Slide Engine — 18 professional slide types."""
 
 from pptx.util import Inches, Pt
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
@@ -15,6 +15,7 @@ from .engine import (
     _add_rounded_rectangle,
     _add_chevron,
     _add_oval,
+    _add_triangle,
     _add_chart_bar,
     _add_chart_pie,
 )
@@ -756,6 +757,239 @@ def add_icon_cards_slide(prs, title, cards, notes=""):
             bold=False, alignment=PP_ALIGN.CENTER,
             anchor=MSO_ANCHOR.TOP,
         )
+
+    _add_speaker_notes(slide, notes)
+    return slide
+
+
+def add_org_chart_slide(prs, title, manager, reports, notes=""):
+    """Slide 16 — Org chart: manager node on top, direct reports below.
+
+    manager: dict {"name": "...", "title": "..."}
+    reports: list of dicts {"name": "...", "title": "..."}
+    """
+    slide = _add_blank_slide(prs)
+    _set_slide_background(slide, D.WHITE)
+
+    # Title
+    _add_textbox(
+        slide,
+        left=D.MARGIN_LEFT, top=D.MARGIN_TOP,
+        width=D.CONTENT_WIDTH, height=Inches(0.8),
+        text=title,
+        font_size=D.TITLE_SIZE, font_color=D.NAVY,
+        bold=True, alignment=PP_ALIGN.LEFT,
+    )
+    _add_line(slide, D.MARGIN_LEFT, Inches(1.5), Inches(2), Pt(3), D.ORANGE)
+
+    center_x = D.SLIDE_WIDTH // 2
+
+    # Manager node — navy rounded rectangle, centered
+    mgr_w = Inches(3.0)
+    mgr_h = Inches(1.0)
+    mgr_x = center_x - mgr_w // 2
+    mgr_y = Inches(2.0)
+
+    _add_rounded_rectangle(
+        slide, mgr_x, mgr_y, mgr_w, mgr_h, D.NAVY,
+        text=f"{manager['name']}\n{manager['title']}",
+        font_size=Pt(14), font_color=D.WHITE, bold=True,
+    )
+
+    # Connector: vertical line from manager bottom to horizontal bar
+    n = len(reports)
+    connector_y_start = mgr_y + mgr_h
+    connector_y_end = Inches(3.5)
+    _add_line(slide, center_x, connector_y_start, Pt(2),
+              connector_y_end - connector_y_start, D.LIGHT_GRAY)
+
+    # Report cards
+    report_w = min(Inches(2.2), (D.CONTENT_WIDTH - Inches(0.2) * (n - 1)) / n) if n > 0 else Inches(2.2)
+    gap = Inches(0.2)
+    total_w = n * report_w + (n - 1) * gap if n > 0 else 0
+    start_x = center_x - total_w // 2
+    report_y = Inches(4.2)
+    report_h = Inches(1.0)
+
+    if n > 1:
+        # Horizontal connector bar
+        bar_left = start_x + report_w // 2
+        bar_right = start_x + (n - 1) * (report_w + gap) + report_w // 2
+        _add_line(slide, bar_left, connector_y_end, bar_right - bar_left, Pt(2), D.LIGHT_GRAY)
+
+    for i, report in enumerate(reports):
+        rx = start_x + i * (report_w + gap)
+        rx_center = rx + report_w // 2
+
+        # Vertical connector from bar to report card
+        _add_line(slide, rx_center, connector_y_end, Pt(2),
+                  report_y - connector_y_end, D.LIGHT_GRAY)
+
+        # Report card — light gray with navy border
+        _add_rounded_rectangle(
+            slide, rx, report_y, report_w, report_h, D.LIGHT_GRAY,
+            border_color=D.NAVY,
+            text=f"{report['name']}\n{report['title']}",
+            font_size=Pt(12), font_color=D.NAVY, bold=False,
+        )
+
+    _add_speaker_notes(slide, notes)
+    return slide
+
+
+def add_funnel_slide(prs, title, stages, notes=""):
+    """Slide 17 — Funnel: centered horizontal bars decreasing in width.
+
+    stages: list of dicts {"label": "Applied", "value": "150"}
+    """
+    slide = _add_blank_slide(prs)
+    _set_slide_background(slide, D.WHITE)
+
+    # Title
+    _add_textbox(
+        slide,
+        left=D.MARGIN_LEFT, top=D.MARGIN_TOP,
+        width=D.CONTENT_WIDTH, height=Inches(0.8),
+        text=title,
+        font_size=D.TITLE_SIZE, font_color=D.NAVY,
+        bold=True, alignment=PP_ALIGN.LEFT,
+    )
+    _add_line(slide, D.MARGIN_LEFT, Inches(1.5), Inches(2), Pt(3), D.ORANGE)
+
+    n = len(stages)
+    center_x = D.SLIDE_WIDTH // 2
+    max_width = Inches(8.0)
+    min_width = Inches(3.0)
+    funnel_top = Inches(2.0)
+    total_height = Inches(4.5)
+    bar_h = total_height / n
+    colors = D.PROCESS_COLORS
+
+    for i, stage in enumerate(stages):
+        # Width decreases linearly
+        ratio = (n - i) / n if n > 1 else 1.0
+        w = min_width + (max_width - min_width) * ratio
+        x = center_x - w // 2
+        y = funnel_top + i * bar_h
+        color = colors[i % len(colors)]
+
+        _add_rounded_rectangle(
+            slide, x, y, w, bar_h - Inches(0.08), color,
+        )
+
+        # Label on the left side of the bar
+        _add_textbox(
+            slide, x + Inches(0.3), y,
+            w // 2 - Inches(0.3), bar_h - Inches(0.08),
+            text=stage["label"],
+            font_size=Pt(15), font_color=D.WHITE,
+            bold=True, alignment=PP_ALIGN.LEFT,
+            anchor=MSO_ANCHOR.MIDDLE,
+        )
+
+        # Value on the right side of the bar
+        _add_textbox(
+            slide, x + w // 2, y,
+            w // 2 - Inches(0.3), bar_h - Inches(0.08),
+            text=stage["value"],
+            font_size=Pt(15), font_color=D.WHITE,
+            bold=True, alignment=PP_ALIGN.RIGHT,
+            anchor=MSO_ANCHOR.MIDDLE,
+        )
+
+    # Triangle pointer at bottom
+    tri_w = Inches(0.6)
+    tri_h = Inches(0.4)
+    tri_x = center_x - tri_w // 2
+    tri_y = funnel_top + total_height + Inches(0.1)
+    _add_triangle(slide, tri_x, tri_y, tri_w, tri_h, D.ORANGE)
+
+    _add_speaker_notes(slide, notes)
+    return slide
+
+
+def add_team_grid_slide(prs, title, members, notes=""):
+    """Slide 18 — Team grid: profile cards with initials in a grid.
+
+    members: list of dicts {"name": "...", "role": "...", "desc": "..." (optional)}
+    Max 6 members (2 rows x 3 cols).
+    """
+    slide = _add_blank_slide(prs)
+    _set_slide_background(slide, D.WHITE)
+
+    # Title
+    _add_textbox(
+        slide,
+        left=D.MARGIN_LEFT, top=D.MARGIN_TOP,
+        width=D.CONTENT_WIDTH, height=Inches(0.8),
+        text=title,
+        font_size=D.TITLE_SIZE, font_color=D.NAVY,
+        bold=True, alignment=PP_ALIGN.LEFT,
+    )
+    _add_line(slide, D.MARGIN_LEFT, Inches(1.5), Inches(2), Pt(3), D.ORANGE)
+
+    n = min(len(members), 6)
+    cols = min(n, 3)
+    rows = 1 if n <= 3 else 2
+
+    gap = Inches(0.4)
+    card_w = (D.CONTENT_WIDTH - gap * (cols - 1)) / cols
+    card_h = Inches(2.3) if rows == 1 else Inches(2.1)
+    start_y = Inches(2.2) if rows == 1 else Inches(2.0)
+
+    for i in range(n):
+        member = members[i]
+        col = i % cols
+        row = i // cols
+        x = D.MARGIN_LEFT + col * (card_w + gap)
+        y = start_y + row * (card_h + gap)
+
+        # Card background
+        _add_rounded_rectangle(slide, x, y, card_w, card_h, D.LIGHT_GRAY,
+                               border_color=D.LIGHT_GRAY)
+
+        # Initials circle
+        circle_size = Inches(0.7)
+        circle_x = x + (card_w - circle_size) // 2
+        circle_y = y + Inches(0.2)
+
+        # Extract initials from name
+        parts = member["name"].split()
+        initials = "".join(p[0].upper() for p in parts[:2]) if parts else "?"
+
+        _add_oval(
+            slide, circle_x, circle_y, circle_size, circle_size,
+            D.WHITE, text=initials, font_size=Pt(18), font_color=D.NAVY, bold=True,
+        )
+
+        # Name
+        _add_textbox(
+            slide, x, circle_y + circle_size + Inches(0.1),
+            card_w, Inches(0.4),
+            text=member["name"],
+            font_size=Pt(14), font_color=D.NAVY,
+            bold=True, alignment=PP_ALIGN.CENTER,
+        )
+
+        # Role
+        _add_textbox(
+            slide, x, circle_y + circle_size + Inches(0.45),
+            card_w, Inches(0.35),
+            text=member["role"],
+            font_size=Pt(12), font_color=D.ORANGE,
+            bold=True, alignment=PP_ALIGN.CENTER,
+        )
+
+        # Description (optional)
+        desc = member.get("desc", "")
+        if desc:
+            _add_textbox(
+                slide, x + Inches(0.1), circle_y + circle_size + Inches(0.8),
+                card_w - Inches(0.2), Inches(0.5),
+                text=desc,
+                font_size=Pt(10), font_color=D.GRAY,
+                bold=False, alignment=PP_ALIGN.CENTER,
+            )
 
     _add_speaker_notes(slide, notes)
     return slide

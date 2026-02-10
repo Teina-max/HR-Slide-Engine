@@ -18,6 +18,9 @@ from .layouts import (
     add_bar_chart_slide,
     add_pie_chart_slide,
     add_icon_cards_slide,
+    add_org_chart_slide,
+    add_funnel_slide,
+    add_team_grid_slide,
 )
 
 __all__ = [
@@ -39,4 +42,7 @@ __all__ = [
     "add_bar_chart_slide",
     "add_pie_chart_slide",
     "add_icon_cards_slide",
+    "add_org_chart_slide",
+    "add_funnel_slide",
+    "add_team_grid_slide",
 ]

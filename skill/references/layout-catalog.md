@@ -100,6 +100,27 @@
 **Paramètres** : `cards` = liste de dicts `{"value": "78%", "label": "Satisfaction"}`. Max 6 cartes.
 **Quand l'utiliser** : Tableau de bord RH, bilan social en un coup d'œil, KPIs clés, résultats d'enquête.
 
+### 16. `add_org_chart_slide(prs, title, manager, reports, notes)`
+
+**Usage** : Organigramme simple (1 manager + N direct reports).
+**Visuel** : Nœud manager navy centré en haut, connecteurs gris, cartes reports en rangée dessous (fond gris clair, bordure navy).
+**Paramètres** : `manager` = dict `{"name": "...", "title": "..."}`, `reports` = liste de dicts `{"name": "...", "title": "..."}`.
+**Quand l'utiliser** : Présenter une équipe hiérarchique, organigramme de direction, structure d'un service RH.
+
+### 17. `add_funnel_slide(prs, title, stages, notes)`
+
+**Usage** : Tunnel / entonnoir (recrutement, conversion, pipeline).
+**Visuel** : Barres horizontales centrées de largeur décroissante, couleurs PROCESS_COLORS, label à gauche et valeur à droite (blanc), triangle orange pointeur en bas.
+**Paramètres** : `stages` = liste de dicts `{"label": "Candidatures", "value": "150"}`.
+**Quand l'utiliser** : Tunnel de recrutement, pipeline commercial, processus de sélection, entonnoir de conversion. 2 à 6 étapes.
+
+### 18. `add_team_grid_slide(prs, title, members, notes)`
+
+**Usage** : Grille de profils d'équipe.
+**Visuel** : Cartes en grille (2 rows x 3 cols max), chaque carte avec cercle blanc contenant les initiales (navy), nom (navy bold), rôle (orange bold), description optionnelle (gris).
+**Paramètres** : `members` = liste de dicts `{"name": "...", "role": "...", "desc": "..." (optionnel)}`. Max 6 membres.
+**Quand l'utiliser** : Présenter une équipe projet, comité de pilotage, équipe RH, intervenants d'une formation.
+
 ---
 
 ## Règles de sélection automatique
@@ -121,3 +142,6 @@
 | Données chiffrées comparatives     | `bar_chart`         |
 | Répartition, proportions           | `pie_chart`         |
 | Dashboard, KPIs multiples          | `icon_cards`        |
+| Organigramme, hiérarchie équipe    | `org_chart`         |
+| Tunnel, entonnoir, pipeline        | `funnel`            |
+| Équipe, profils, intervenants      | `team_grid`         |

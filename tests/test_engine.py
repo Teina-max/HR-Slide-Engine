@@ -25,6 +25,9 @@ from slide_engine import (
     add_bar_chart_slide,
     add_pie_chart_slide,
     add_icon_cards_slide,
+    add_org_chart_slide,
+    add_funnel_slide,
+    add_team_grid_slide,
 )
 
 
@@ -365,3 +368,112 @@ class TestIconCardsSlide:
             notes="Objectif dépassé",
         )
         assert "dépassé" in slide.notes_slide.notes_text_frame.text
+
+
+class TestOrgChartSlide:
+    def test_basic(self, prs):
+        slide = add_org_chart_slide(
+            prs, "Organisation RH",
+            manager={"name": "Marie Dupont", "title": "DRH"},
+            reports=[
+                {"name": "Jean Martin", "title": "Resp. Formation"},
+                {"name": "Sophie Leclerc", "title": "Resp. Recrutement"},
+                {"name": "Pierre Durand", "title": "Resp. Paie"},
+            ],
+        )
+        assert len(prs.slides) == 1
+
+    def test_with_notes(self, prs):
+        slide = add_org_chart_slide(
+            prs, "Organigramme",
+            manager={"name": "A", "title": "DRH"},
+            reports=[{"name": "B", "title": "Adj"}],
+            notes="Présenter l'équipe",
+        )
+        assert "équipe" in slide.notes_slide.notes_text_frame.text
+
+    def test_single_report(self, prs):
+        slide = add_org_chart_slide(
+            prs, "Hiérarchie",
+            manager={"name": "Chef", "title": "Directeur"},
+            reports=[{"name": "Adjoint", "title": "Sous-directeur"}],
+        )
+        assert len(prs.slides) == 1
+
+
+class TestFunnelSlide:
+    def test_basic(self, prs):
+        slide = add_funnel_slide(
+            prs, "Tunnel de recrutement",
+            stages=[
+                {"label": "Candidatures", "value": "150"},
+                {"label": "Entretiens RH", "value": "45"},
+                {"label": "Entretiens manager", "value": "20"},
+                {"label": "Offres", "value": "8"},
+                {"label": "Embauches", "value": "5"},
+            ],
+        )
+        assert len(prs.slides) == 1
+
+    def test_with_notes(self, prs):
+        slide = add_funnel_slide(
+            prs, "Funnel",
+            stages=[{"label": "A", "value": "100"}, {"label": "B", "value": "50"}],
+            notes="Analyser le taux de conversion",
+        )
+        assert "conversion" in slide.notes_slide.notes_text_frame.text
+
+    def test_two_stages(self, prs):
+        slide = add_funnel_slide(
+            prs, "Mini funnel",
+            stages=[
+                {"label": "Candidatures", "value": "200"},
+                {"label": "Recrutés", "value": "10"},
+            ],
+        )
+        assert len(prs.slides) == 1
+
+
+class TestTeamGridSlide:
+    def test_basic(self, prs):
+        slide = add_team_grid_slide(
+            prs, "Équipe projet",
+            members=[
+                {"name": "Marie Dupont", "role": "Chef de projet", "desc": "Pilotage GPEC"},
+                {"name": "Jean Martin", "role": "RRH", "desc": "Référent compétences"},
+                {"name": "Sophie Leclerc", "role": "Consultante"},
+            ],
+        )
+        assert len(prs.slides) == 1
+
+    def test_six_members(self, prs):
+        slide = add_team_grid_slide(
+            prs, "Équipe complète",
+            members=[
+                {"name": "A B", "role": "R1", "desc": "D1"},
+                {"name": "C D", "role": "R2", "desc": "D2"},
+                {"name": "E F", "role": "R3", "desc": "D3"},
+                {"name": "G H", "role": "R4", "desc": "D4"},
+                {"name": "I J", "role": "R5", "desc": "D5"},
+                {"name": "K L", "role": "R6", "desc": "D6"},
+            ],
+        )
+        assert len(prs.slides) == 1
+
+    def test_with_notes(self, prs):
+        slide = add_team_grid_slide(
+            prs, "Équipe",
+            members=[{"name": "Test User", "role": "Dev"}],
+            notes="Présenter les rôles",
+        )
+        assert "rôles" in slide.notes_slide.notes_text_frame.text
+
+    def test_without_desc(self, prs):
+        slide = add_team_grid_slide(
+            prs, "Équipe sans description",
+            members=[
+                {"name": "Alice Bonnet", "role": "Manager"},
+                {"name": "Bob Petit", "role": "Analyste"},
+            ],
+        )
+        assert len(prs.slides) == 1
